@@ -35,7 +35,7 @@
 
 <script>
 import { reqRoleAdd, reqRoleHuo, reqRoleUpdate } from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import { successalert ,erroralert} from "../../../utils/alert";
 import { mapActions, mapGetters } from "vuex";
 export default {
   props: ["info", "menulist"],
@@ -78,24 +78,35 @@ export default {
       //树形控件要清空数据
       this.$refs.tree.setCheckedKeys([]);
     },
+    check() {
+      return new Promise(resolve => {
+        if (this.user.rolename === "") {
+          erroralert("角色名称不能为空");
+          return;
+        }
+        resolve();
+      });
+    },
     add() {
-      /*
+      this.check().then(() => {
+        /*
       user的rolename、status是和表单关联的，所以这两个字段不用操作；
       但是menus和树形控件没有关联，在发起请求之前，需要将树形控件上选中的内容赋值给menus，
       再发请求。*/
-      this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
 
-      reqRoleAdd(this.user).then(res => {
-        if (res.data.code == 200) {
-          //成功弹框
-          successalert(res.data.msg);
-          //弹框消失
-          this.cancel();
-          //清空数据
-          this.empty();
-          //列表更新
-          this.$emit("init");
-        }
+        reqRoleAdd(this.user).then(res => {
+          if (res.data.code == 200) {
+            //成功弹框
+            successalert(res.data.msg);
+            //弹框消失
+            this.cancel();
+            //清空数据
+            this.empty();
+            //列表更新
+            this.$emit("init");
+          }
+        });
       });
     },
     //获取数据
@@ -110,27 +121,30 @@ export default {
       });
     },
     xiu() {
-      //先取出树形控件的数据给menus，再发请求
-      this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
-      reqRoleUpdate(this.user).then(res => {
-        if (res.data.code == 200) {
-          //弹成功
-          successalert(res.data.msg);
-          //弹框消失
-
-          //修改的角色是当前用户所属的角色，就需要退出
-          if (this.user.id == this.userInfo.roleid) {
-            this.changeUser({});
-            this.$router.push("/login");
-            return;
+      this.check().then(() => {
+        //先取出树形控件的数据给menus，再发请求
+        this.user.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        reqRoleUpdate(this.user).then(res => {
+          if (res.data.code == 200) {
+            //弹成功
+            successalert(res.data.msg);
+            console.log(this.user.id );
+            console.log( this.userInfo.roleid );
+            //修改的角色是当前用户所属的角色，就需要退出
+            if (this.user.id == this.userInfo.roleid) {
+              console.log(this.userInfo.roleid);
+              this.changeUser({});
+              this.$router.push("/login");
+              return;
+            }
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //刷新list
+            this.$emit("init");
           }
-
-          this.cancel();
-          //数据清空
-          this.empty();
-          //刷新list
-          this.$emit("init");
-        }
+        });
       });
     }
   }

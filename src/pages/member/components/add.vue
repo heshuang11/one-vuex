@@ -15,7 +15,6 @@
           <el-input autocomplete="off" v-model="user.password"></el-input>
         </el-form-item>
 
-
         <el-form-item label="状态" label-width="100px">
           <el-switch :active-value="1" :inactive-value="2" v-model="user.status"></el-switch>
         </el-form-item>
@@ -30,39 +29,53 @@
 </template>
 
 <script>
-import {
-  reqMemberDetail,
-  reqMemberUpdate
-} from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import { reqMemberDetail, reqMemberUpdate } from "../../../utils/http";
+import { successalert,erroralert } from "../../../utils/alert";
 export default {
   props: ["info", "list"],
   data() {
     return {
       user: {
-        uid:"",
+        uid: "",
         nickname: "",
-        phone:"",
-        password:"",
+        phone: "",
+        password: "",
         status: 1
       }
     };
   },
   methods: {
-      empty(){
-        this.user={
-        uid:"",
+    empty() {
+      this.user = {
+        uid: "",
         nickname: "",
-        phone:"",
-        password:"",
+        phone: "",
+        password: "",
         status: 1
-      }
-      },
-     cancel(){
-         this.empty()
-          this.info.isshow = false;
-      },
-      getOne(uid) {
+      };
+    },
+    check() {
+      return new Promise(resolve => {
+        if (this.user.phone === "") {
+          erroralert("一级分类不能为空");
+          return;
+        }
+        if (this.user.nickname === "") {
+          erroralert("昵称不能为空");
+          return;
+        }
+        if (this.user.password === "") {
+          erroralert("密码不能为空");
+          return;
+        }
+        resolve();
+      });
+    },
+    cancel() {
+      this.empty();
+      this.info.isshow = false;
+    },
+    getOne(uid) {
       reqMemberDetail({ uid: uid }).then(res => {
         if (res.data.code == 200) {
           this.user = res.data.list;
@@ -70,16 +83,18 @@ export default {
           this.user.uid = uid;
         }
       });
-      },
-      update() {
-      reqMemberUpdate(this.user).then(res => {
-        if (res.data.code == 200) {
-          successalert(res.data.msg);
-          this.cancel();
-          this.empty();
-          //刷新list
-          this.$emit("init");
-        }
+    },
+    update() {
+      this.check().then(() => {
+        reqMemberUpdate(this.user).then(res => {
+          if (res.data.code == 200) {
+            successalert(res.data.msg);
+            this.cancel();
+            this.empty();
+            //刷新list
+            this.$emit("init");
+          }
+        });
       });
     }
   }

@@ -9,7 +9,6 @@
     <el-table-column prop="id" label="用户编号" sortable width="180"></el-table-column>
     <el-table-column prop="nickname" label="昵称" sortable width="180"></el-table-column>
     <el-table-column prop="phone" label="手机号" sortable width="180"></el-table-column>
-    
 
     <el-table-column label="状态">
       <template slot-scope="scope">
@@ -26,14 +25,13 @@
 </template>
 
 <script>
-
 export default {
   props: ["list"],
   methods: {
     edit(a) {
-      console.log(a);
-      this.$emit("edit", a);
-    },
+        console.log(a);
+        this.$emit("edit", a);
+    }
   }
 };
 </script>

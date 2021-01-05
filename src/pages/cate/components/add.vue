@@ -80,6 +80,7 @@ export default {
           erroralert("分类名称不能为空");
           return;
         }
+        resolve()
       });
     },
     ...mapActions({

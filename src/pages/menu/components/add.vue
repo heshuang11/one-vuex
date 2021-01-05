@@ -52,8 +52,8 @@
 
 <script>
 import { indexRoutes } from "../../../router";
-import { reqMenuAdd, reqMenuDetail,reqMenuUpdate } from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import { reqMenuAdd, reqMenuDetail, reqMenuUpdate } from "../../../utils/http";
+import { successalert,erroralert } from "../../../utils/alert";
 export default {
   props: ["info", "list"],
   data() {
@@ -76,15 +76,24 @@ export default {
         "el-icon-s-order"
       ],
       //路由集合
-      indexRoutes,
+      indexRoutes
     };
   },
   methods: {
+    check() {
+      return new Promise(resolve => {
+        if (this.user.title === "") {
+          erroralert("一级分类不能为空");
+          return;
+        }
+        resolve();
+      });
+    },
     //点击取消
     cancel() {
       //如果是添加，点了取消，再点添加之前输的数据不清空，如果是点击编辑，然后点击取消，再点击添加的话，就会有一个bug,编辑的数据还在，所以要清空
-      if(!this.info.isadd){
-        this.empty()
+      if (!this.info.isadd) {
+        this.empty();
       }
       this.info.isshow = false;
     },
@@ -101,18 +110,21 @@ export default {
     },
     //点击添加，添加数据
     add() {
-      //  什么时候封装函数，什么时候创建公共组件   很多地方只用到方法的时候封装函数，如果很多地方不仅需要方法还需要标签的话，创建公共组件
-      reqMenuAdd(this.user).then(res => {
-        //封装了成功弹框
-        if (res.data.code == 200) {
-          successalert(res.data.msg);
-          //弹框消失
-          this.cancel();
-          //清空user
-          this.empty();
-        }
-        //列表刷新
-        this.$emit("init");
+      this.check().then(() => {
+        //  什么时候封装函数，什么时候创建公共组件   很多地方只用到方法的时候封装函数，如果很多地方不仅需要方法还需要标签的话，创建公共组件
+
+        reqMenuAdd(this.user).then(res => {
+          //封装了成功弹框
+          if (res.data.code == 200) {
+            successalert(res.data.msg);
+            //弹框消失
+            this.cancel();
+            //清空user
+            this.empty();
+          }
+          //列表刷新
+          this.$emit("init");
+        });
       });
     },
     changePid() {
@@ -133,19 +145,21 @@ export default {
       });
     },
     //修改
-    update(){
-      reqMenuUpdate(this.user).then(res=>{
-        if(res.data.code==200){
-           //弹成功
-          successalert(res.data.msg)
-           //弹框消失
-          this.cancel()
-          //数据清空
-          this.empty()
-          //刷新list
-          this.$emit("init")
-        }
-      })
+    update() {
+      this.check().then(() => {
+        reqMenuUpdate(this.user).then(res => {
+          if (res.data.code == 200) {
+            //弹成功
+            successalert(res.data.msg);
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //刷新list
+            this.$emit("init");
+          }
+        });
+      });
     }
   }
 };

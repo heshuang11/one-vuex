@@ -38,7 +38,7 @@ import {
   reqSpecsUpdate
 } from "../../../utils/http";
 import { mapActions, mapGetters } from "vuex";
-import { successalert } from "../../../utils/alert";
+import { successalert, erroralert } from "../../../utils/alert";
 export default {
   props: ["info"],
   data() {
@@ -76,29 +76,45 @@ export default {
       this.attrsA.splice(index, 1);
     },
     //点击添加，添加到列表
-    add() {
-      //attrsArr:[ { "value": "s" }, { "value": "m" }, { "value": "l" } ]
-      //user.attrs='["s","m","l"]'  格式不一样
-      this.user.attrs = JSON.stringify(this.attrsA.map(item => item.value));
-      reqSpecsAdd(this.user).then(res => {
-        if (res.data.code == 200) {
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //成功
-          successalert(res.data.msg);
-          //刷新list
-
-          this.reqList();
-          //获取总数
-          this.reqTotal();
+    check() {
+      return new Promise(resolve => {
+        if (this.user.specsname === "") {
+          erroralert("规格名称不能为空");
+          return;
         }
+        if (this.attrsA.some(item=>item.value==="") ){
+          erroralert("规格属性不能为空");
+          return;
+        }
+        resolve();
+      });
+    },
+    add() {
+      this.check().then(() => {
+        //attrsArr:[ { "value": "s" }, { "value": "m" }, { "value": "l" } ]
+        //user.attrs='["s","m","l"]'  格式不一样
+        this.user.attrs = JSON.stringify(this.attrsA.map(item => item.value));
+        reqSpecsAdd(this.user).then(res => {
+          if (res.data.code == 200) {
+            //弹框消失
+            this.cancel();
+            //数据清空
+            this.empty();
+            //成功
+            successalert(res.data.msg);
+            //刷新list
+
+            this.reqList();
+            //获取总数
+            this.reqTotal();
+          }
+        });
       });
     },
     //点击修改
     update() {
-      //属性的数据需要再转化成字符串
+      this.check().then(()=>{
+         //属性的数据需要再转化成字符串
       this.user.attrs = JSON.stringify(this.attrsA.map(item => item.value));
       reqSpecsUpdate(this.user).then(res => {
         if (res.data.code == 200) {
@@ -111,6 +127,8 @@ export default {
           this.reqList();
         }
       });
+      })
+     
     },
     //点击取消
     cancel() {

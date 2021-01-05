@@ -40,7 +40,7 @@ import {
   reqManageUpdate,
   reqManageDetail
 } from "../../../utils/http";
-import { successalert,erroralert } from "../../../utils/alert";
+import { successalert, erroralert } from "../../../utils/alert";
 export default {
   props: ["info", "list"],
   data() {
@@ -64,10 +64,6 @@ export default {
         }
         if (this.user.username === "") {
           erroralert("用户名称不能为空");
-          return;
-        }
-        if (this.user.password === "") {
-          erroralert("用户密码不能为空");
           return;
         }
         resolve()

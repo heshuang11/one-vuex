@@ -68,6 +68,7 @@ export default {
           erroralert("图片不能为空");
           return;
         }
+        resolve()
       });
     },
     empty() {

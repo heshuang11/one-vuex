@@ -454,3 +454,45 @@ export let reqGoodsCount = () => {
     })
 }
 
+//-----------------秒杀------------------
+//秒杀添加 
+export let reqSeckillAdd =(user)=>{
+    return axios({
+        url:baseUrl+"/api/seckadd",
+        method:"post",
+        data:qs.stringify(user)
+    })
+}
+//秒杀列表
+export let reqSeckillList = ()=>{
+    return axios({
+        url:baseUrl+"/api/secklist",
+        method:"get"
+    })
+}
+
+//秒杀获取一条数据  {id:id}
+export let reqSeckillDetail=(user)=>{
+    return axios({
+        url:baseUrl+"/api/seckinfo",
+        method:"get",
+        params:user
+    })
+}
+// 秒杀删除  {id:id}
+export let reqSeckillDel = (user)=>{
+    return axios({
+        url:baseUrl+"/api/seckdelete",
+        method:"post",
+        data:user
+    })
+}
+
+// 秒杀修改   id title秒杀名称 begintime开始时间 endtime结束时间 first_cateid一级分类编码 second_cateid二级分类编码 goodsid商品编号  status
+export let reqSeckillUpdate=(user)=>{
+    return axios({
+        url:baseUrl+"/api/seckedit",
+        method:"post",
+        data:qs.stringify(user)
+    })
+}
